@@ -7,9 +7,9 @@ const server = express();
 
 let PORT = 3000;
 
-mongoose.connect(process.env.MONGODB_URI, {
-  autoIndex: true,
-});
+mongoose.connect(process.env.MONGODB_URI, { autoIndex: true })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Could not connect to MongoDB', err));
 
 server.post("/signup", (req, res) => {
     res.json(req.body);
