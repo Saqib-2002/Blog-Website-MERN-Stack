@@ -7,7 +7,7 @@ const server = express();
 
 let PORT = 3000;
 
-mongoose.connect(process.env.DB_LOCATION, {
+mongoose.connect(process.env.MONGODB_URI, {
   autoIndex: true,
 });
 
