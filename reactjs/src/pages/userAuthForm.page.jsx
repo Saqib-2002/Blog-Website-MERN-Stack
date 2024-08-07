@@ -20,7 +20,7 @@ const UserAuthForm = ({ type }) => {
   // console.log(access_token);
 
   const userAuthThroughServer = (serverRoute, formData) => {
-    // console.log("Sending data:", formData); // Log the data being sent
+    console.log("Sending data:", formData); // Log the data being sent
 
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData, {
