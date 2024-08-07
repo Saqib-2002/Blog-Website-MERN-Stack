@@ -2,6 +2,7 @@ import { useRef } from "react";
 import AnimationWrapper from "../common/page-animation";
 import InputBox from "../components/input.component";
 import googleIcon from "../imgs/google.png";
+<<<<<<< HEAD
 import { Link, Navigate } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
@@ -9,10 +10,16 @@ import { storeInSession } from "../common/session";
 import { useContext } from "react";
 import { UserContext } from "../App";
 import { authWithGoogle } from "../common/firebase";
+=======
+import { Link } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
+import axios from "axios";
+>>>>>>> 272ce8df2cdc7c76af7fba88b9fe988918d97ba7
 
 const UserAuthForm = ({ type }) => {
   const authForm = useRef();
 
+<<<<<<< HEAD
   let {
     userAuth: { access_token },
     setUserAuth,
@@ -21,10 +28,15 @@ const UserAuthForm = ({ type }) => {
 
   const userAuthThroughServer = (serverRoute, formData) => {
     // console.log("Sending data:", formData); // Log the data being sent
+=======
+  const userAuthThroughServer = (serverRoute, formData) => {
+    console.log("Sending data:", formData); // Log the data being sent
+>>>>>>> 272ce8df2cdc7c76af7fba88b9fe988918d97ba7
 
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData, {
         headers: {
+<<<<<<< HEAD
           "Content-Type": "application/json",
         },
       })
@@ -33,6 +45,13 @@ const UserAuthForm = ({ type }) => {
         storeInSession("user", JSON.stringify(data));
 
         setUserAuth(data);
+=======
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(({ data }) => {
+        console.log("Server response:", data);
+>>>>>>> 272ce8df2cdc7c76af7fba88b9fe988918d97ba7
         // Handle successful signup/signin here
         toast.success("Authentication successful!");
       })
@@ -52,11 +71,17 @@ const UserAuthForm = ({ type }) => {
     let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 
+<<<<<<< HEAD
     // Create FormData from the form element
     let form = new FormData(e.target);
     let formData = {};
 
     // Convert FormData to a plain object
+=======
+    let form = new FormData(authForm.current);
+    let formData = {};
+
+>>>>>>> 272ce8df2cdc7c76af7fba88b9fe988918d97ba7
     for (let [key, value] of form.entries()) {
       formData[key] = value;
     }
@@ -84,6 +109,7 @@ const UserAuthForm = ({ type }) => {
     userAuthThroughServer(serverRoute, formData);
   };
 
+<<<<<<< HEAD
   const handleGoogleAuth = (e) => {
     e.preventDefault();
     authWithGoogle()
@@ -105,6 +131,9 @@ const UserAuthForm = ({ type }) => {
   return access_token ? (
     <Navigate to="/" />
   ) : (
+=======
+  return (
+>>>>>>> 272ce8df2cdc7c76af7fba88b9fe988918d97ba7
     <AnimationWrapper keyValue={type}>
       <section className="h-cover flex items-center justify-center">
         <Toaster />
@@ -144,10 +173,14 @@ const UserAuthForm = ({ type }) => {
             <p>or</p>
             <hr className="w-1/2 border-black" />
           </div>
+<<<<<<< HEAD
           <button
             className="btn-dark flex items-center justify-center gap-4 w-[90%] center"
             onClick={handleGoogleAuth}
           >
+=======
+          <button className="btn-dark flex items-center justify-center gap-4 w-[90%] center">
+>>>>>>> 272ce8df2cdc7c76af7fba88b9fe988918d97ba7
             <img src={googleIcon} className="w-5" alt="Google Icon" />
             continue with google
           </button>

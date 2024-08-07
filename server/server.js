@@ -1,4 +1,5 @@
 import express from "express";
+import express from "express";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
@@ -20,6 +21,9 @@ const serviceAccountKeyPath = path.join(__dirname, 'blog-website-mern-stack-fire
 const serviceAccountKey = JSON.parse(fs.readFileSync(serviceAccountKeyPath, 'utf8'));
 
 dotenv.config();
+
+// Schema import
+import User from "./Schema/User.js";
 
 // Schema import
 import User from "./Schema/User.js";
