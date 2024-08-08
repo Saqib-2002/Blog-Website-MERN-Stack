@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+// import { auth } from './your-firebase-config-file'; // Make sure to import your Firebase config
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -22,14 +23,40 @@ const provider = new GoogleAuthProvider();
 
 const auth = getAuth();
 
+// export const authWithGoogle = async () => {
+//   let user = null;
+//   await signInWithPopup(auth, provider)
+//     .then((result) => {
+//       user = result.user;
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//     });
+//   return user;
+// };
+
+
+
 export const authWithGoogle = async () => {
-  let user = null;
-  await signInWithPopup(auth, provider)
-    .then((result) => {
-      user = result.user;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  return user;
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    
+    // Get the access token from the credential
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const accessToken = credential.accessToken;
+
+    // Get the user information
+    const user = result.user;
+
+    // Return an object with both the user and the access token
+    return {
+      user: user,
+      access_token: accessToken
+    };
+  } catch (error) {
+    console.error("Google Auth Error:", error);
+    // Handle errors here, such as displaying a notification to the user
+    throw error; // Re-throw the error so it can be caught in the calling function
+  }
 };

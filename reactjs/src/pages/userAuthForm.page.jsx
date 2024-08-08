@@ -84,24 +84,51 @@ const UserAuthForm = ({ type }) => {
     userAuthThroughServer(serverRoute, formData);
   };
 
+  // google auth
+  // const handleGoogleAuth = (e) => {
+  //   e.preventDefault();
+  //   authWithGoogle()
+  //     .then((user) => {
+  //       console.log(user);
+
+  //       const serverRoute = "/google-auth";
+  //       const formData = {
+  //         access_token: user.access_token,
+  //       };
+
+  //       userAuthThroughServer(serverRoute, formData)
+  //     })
+  //     .catch((err) => {
+  //       toast.error("Trouble login through Google");
+  //       return console.log(err);
+  //     });
+  // };
+
   const handleGoogleAuth = (e) => {
     e.preventDefault();
     authWithGoogle()
       .then((user) => {
-        // console.log(user);
-
-        const serverRoute = "/google-auth";
-        const formData = {
-          access_token: user.access_token,
-        };
-
-        userAuthThroughServer(serverRoute, formData)
+        console.log("Google Auth User:", user);
+        console.log(user.access_token);
+        if (user && user.access_token) {
+          const serverRoute = "/google-auth";
+          const formData = {
+            access_token: user.access_token,
+          };
+          userAuthThroughServer(serverRoute, formData);
+        } else {
+          console.error("No access token received from Google Auth");
+          toast.error("Failed to authenticate with Google. Please try again.");
+        }
       })
       .catch((err) => {
-        toast.error("Trouble login through Google");
-        return console.log(err);
+        console.error("Google Auth Error:", err);
+        toast.error("Trouble logging in through Google");
       });
   };
+
+
+
   return access_token ? (
     <Navigate to="/" />
   ) : (
