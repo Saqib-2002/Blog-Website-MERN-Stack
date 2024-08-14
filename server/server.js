@@ -15,6 +15,10 @@ import { fileURLToPath } from "url";
 
 dotenv.config();
 
+// Image Upload 
+const multer = require("multer");
+const path = require("path");
+
 // Schema import
 import User from "./Schema/User.js";
 
@@ -256,14 +260,16 @@ server.use((err, req, res, next) => {
 
 server.post("/google-auth", async (req, res) => {
   try {
+    console.log("Google Auth request body: ", req.body);
     let { access_token } = req.body;
-    console.log(access_token);
+    console.log("Access Token = ", access_token);
 
     if (!access_token) {
       return res.status(400).json({ error: "No access token provided" });
     }
 
     const decodedUser = await getAuth().verifyIdToken(access_token);
+
     const { email, name, picture } = decodedUser;
 
     let updatedPicture = picture.replace("s96-c", "s384-c");
@@ -297,16 +303,39 @@ server.post("/google-auth", async (req, res) => {
     res.status(200).json(formatDatatoSend(user));
   } catch (err) {
     console.error("Google auth error:", err);
-    res
-      .status(500)
-      .json({
-        error:
-          "Failed to authenticate you with Google. Try another Google account.",
-        details: err.message,
-      });
+    res.status(500).json({
+      error:
+        "Failed to authenticate you with Google. Try another Google account.",
+      details: err.message,
+    });
   }
 });
 
 server.listen(PORT, () => {
   console.log("Listening on port: " + PORT);
+});
+
+
+// Image Upload by Himanshu
+// Image storage engine
+const storage = multer.diskStorage({
+    destination: './uploads/images',
+    filename: (req, file, cb) => {
+        cb(null, ${file.fieldname}_${Date.now()}${path.extname(file.originalname)});
+    }
+});
+
+const upload = multer({
+    storage: storage
+});
+
+// Serve static files from 'uploads/images'
+app.use('/images', express.static('uploads/images'));
+
+// Creating upload endpoint
+app.post("/upload", upload.single('product'), (req, res) => {
+    res.json({
+        success: 1,
+        image_url: http://localhost:${PORT}/images/${req.file.filename}
+    });
 });
