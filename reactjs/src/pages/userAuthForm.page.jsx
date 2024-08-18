@@ -127,8 +127,6 @@ const UserAuthForm = ({ type }) => {
       });
   };
 
-
-
   return access_token ? (
     <Navigate to="/" />
   ) : (

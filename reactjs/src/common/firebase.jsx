@@ -35,15 +35,13 @@ const auth = getAuth();
 //   return user;
 // };
 
-
-
 export const authWithGoogle = async () => {
   try {
-    const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    
+
     // Get the access token from the credential
     const credential = GoogleAuthProvider.credentialFromResult(result);
+
     const accessToken = credential.accessToken;
 
     // Get the user information
@@ -52,7 +50,7 @@ export const authWithGoogle = async () => {
     // Return an object with both the user and the access token
     return {
       user: user,
-      access_token: accessToken
+      access_token: accessToken,
     };
   } catch (error) {
     console.error("Google Auth Error:", error);
