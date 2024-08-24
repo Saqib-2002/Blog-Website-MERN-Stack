@@ -19,11 +19,13 @@ const UserAuthForm = ({ type }) => {
   } = useContext(UserContext);
   // console.log(access_token);
 
+  const serverUrl = import.meta.env.VITE_SERVER_DOMAIN;
+
   const userAuthThroughServer = (serverRoute, formData) => {
     console.log("Sending data:", formData); // Log the data being sent
-
+    console.log("Full URL:", import.meta.env.VITE_SERVER_DOMAIN + serverRoute);
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData, {
+      .post(`${serverUrl}${serverRoute}`, formData, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -44,6 +46,7 @@ const UserAuthForm = ({ type }) => {
       });
   };
 
+  // SignUp/SignIn
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -84,37 +87,40 @@ const UserAuthForm = ({ type }) => {
     userAuthThroughServer(serverRoute, formData);
   };
 
-  // google auth
-  // const handleGoogleAuth = (e) => {
-  //   e.preventDefault();
-  //   authWithGoogle()
-  //     .then((user) => {
-  //       console.log(user);
+  // Google Auth
+  /*const handleGoogleAuth = (e) => {
+    e.preventDefault();
+    authWithGoogle()
+      .then((user) => {
+        console.log(user);
 
-  //       const serverRoute = "/google-auth";
-  //       const formData = {
-  //         access_token: user.access_token,
-  //       };
+        const serverRoute = "/google-auth";
+        const formData = {
+          access_token: user.access_token,
+        };
 
-  //       userAuthThroughServer(serverRoute, formData)
-  //     })
-  //     .catch((err) => {
-  //       toast.error("Trouble login through Google");
-  //       return console.log(err);
-  //     });
-  // };
+        userAuthThroughServer(serverRoute, formData)
+      })
+      .catch((err) => {
+        toast.error("Trouble login through Google");
+        return console.log(err);
+      });
+  };*/
 
   const handleGoogleAuth = (e) => {
     e.preventDefault();
     authWithGoogle()
       .then((user) => {
         console.log("Google Auth User:", user);
-        console.log(user.access_token);
-        if (user && user.access_token) {
+        console.log("user.id_token:- ", user.id_token);
+        // console.log("acces_token:- ", access_token.accessToken); // null
+
+        if (user && user.id_token) {
           const serverRoute = "/google-auth";
           const formData = {
-            access_token: user.access_token,
+            id_token: user.id_token,
           };
+          console.log("FormData ID Token :- ", formData.id_token);
           userAuthThroughServer(serverRoute, formData);
         } else {
           console.error("No access token received from Google Auth");

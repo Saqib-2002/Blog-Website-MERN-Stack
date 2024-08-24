@@ -39,10 +39,13 @@ export const authWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
 
-    // Get the access token from the credential
-    const credential = GoogleAuthProvider.credentialFromResult(result);
+    // Get the id token from the credential
+    // const credential = GoogleAuthProvider.credentialFromResult(result);
+    const idToken = await result.user.getIdToken();
+    // console.log("ID TOKEN:- ", idToken);
 
-    const accessToken = credential.accessToken;
+    // const accessToken = credential.accessToken;
+    // console.log("Firebase accessToken: - ", accessToken);
 
     // Get the user information
     const user = result.user;
@@ -50,7 +53,7 @@ export const authWithGoogle = async () => {
     // Return an object with both the user and the access token
     return {
       user: user,
-      access_token: accessToken,
+      id_token: idToken,
     };
   } catch (error) {
     console.error("Google Auth Error:", error);
