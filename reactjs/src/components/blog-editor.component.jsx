@@ -18,6 +18,7 @@ const BlogEditor = () => {
     setBlog,
     textEditor,
     setTextEditor,
+    setEditorState,
   } = useContext(EditorContext);
 
   // console.log(title);
@@ -77,9 +78,20 @@ const BlogEditor = () => {
     }
 
     if (textEditor.isReady) {
-      textEditor.save().then((data) => {
-        console.log(data);
-      });
+      textEditor
+        .save()
+        .then((data) => {
+          console.log(data);
+          if (data.blocks.length) {
+            setBlog({ ...blog, content: data });
+            setEditorState("publish");
+          } else {
+            return toast.error("Write something in your blog to publish it");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
   return (

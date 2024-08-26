@@ -1,5 +1,14 @@
+import AnimationWrapper from "../common/page-animation";
+
 const PublishForm = () => {
-    return <h1>Publish Form Page</h1>
+    return (
+
+    <AnimationWrapper>
+        <section>
+
+        </section>
+    </AnimationWrapper>
+    )
 }
 
 export default PublishForm;
