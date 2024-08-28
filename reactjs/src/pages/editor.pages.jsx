@@ -10,7 +10,7 @@ const blogStructure = {
   banner: "",
   content: [],
   tags: [],
-  desc: "",
+  desc: " ",
   author: { personal_info: {} },
 };
 
