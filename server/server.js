@@ -11,11 +11,12 @@ import { getAuth } from "firebase-admin/auth";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import multer from "multer";
 dotenv.config();
 
 // Schema import
 import User from "./Schema/User.js";
+import Blog from "./Schema/Blog.js";
 
 const server = express(); // initializing a new Express application instance
 let PORT = 3000; // specifying the port on which the server will listen for incoming connections.
@@ -68,6 +69,25 @@ mongoose
     console.error("MongoDB connection error:", err);
     process.exit(1); // Exit the process if unable to connect to the database
   });
+
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  console.log(authHeader);
+  const token = authHeader && authHeader.split(" ")[1];
+  console.log(token);
+
+  if (token == null) {
+    return res.status(401).json({ error: "No access token" });
+  }
+  jwt.verify(token, process.env.SECRET_ACCESS_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: "Access token is invalid" });
+    }
+
+    req.user = user.id;
+    next();
+  });
+};
 
 // Formatting Data
 const formatDatatoSend = (user) => {
@@ -274,7 +294,7 @@ server.post("/google-auth", async (req, res) => {
   try {
     // console.log("Google Auth request body: ", req.body);
     const { id_token } = req.body;
-    console.log("ID Token = ", id_token);
+    // console.log("ID Token = ", id_token);
 
     if (!id_token) {
       return res.status(400).json({ error: "No id token provided" });
@@ -305,7 +325,7 @@ server.post("/google-auth", async (req, res) => {
 
     if (user) {
       // login
-      console.log("User Info", user.personal_info)
+      // console.log("User Info", user.personal_info)
       // if (!user.personal_info.google_auth) {
       //   console.log(user.personal_info.google_auth);
       //   return res.status(403).json({
@@ -346,6 +366,150 @@ server.post("/google-auth", async (req, res) => {
       details: err.message,
     });
   }
+});
+
+// Ensure uploads directory exists
+const uploadsDir = "./uploads/images";
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Multer configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `banner_${Date.now()}${path.extname(file.originalname)}`);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
+    }
+  },
+});
+
+// Enable CORS (for development)
+server.use(cors());
+
+// Serve uploaded files
+server.use("/images", express.static("uploads/images"));
+
+// Banner upload route
+server.post("/upload", upload.single("banner"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      message: "No file uploaded",
+    });
+  }
+
+  res.json({
+    success: true,
+    image_url: `http://localhost:${PORT}/images/${req.file.filename}`,
+  });
+});
+
+// Create Blog Route
+server.post("/create-blog", verifyJWT, (req, res) => {
+  // console.log("Request body:", req.body);
+  console.log("Received blog data:", req.body);
+  const authorId = req.user;
+  console.log("Author ID = ", authorId);
+
+  let { title, des, banner, tags, content, draft } = req.body;
+  console.log(tags);
+
+  if (!title.length) {
+    return res
+      .status(403)
+      .json({ error: "You must provide a title to publish the blog" });
+  }
+  if (!draft) {
+    if (!title || !des || !banner || !tags || !content) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    if (!des.length || des.length > 200) {
+      return res.status(403).json({
+        error: "You must provide blog description under 200 characters",
+      });
+    }
+
+    if (!banner.length) {
+      return res
+        .status(403)
+        .json({ error: "You must provide blog banner to publish it" });
+    }
+
+    if (!content.blocks.length) {
+      return res
+        .status(403)
+        .json({ error: "There must be some blog content to publish it" });
+    }
+
+    if (!tags.length || tags.length > 10) {
+      return res.status(403).json({
+        error: "Provide tags in order to publish the blog. Maximum 10",
+      });
+    }
+  }
+
+  // Storing data in database
+  tags = tags.map((tag) => tag.toLowerCase());
+  const blog_id =
+    title
+      .replace(/[^a-zA-Z0-9]/g, " ")
+      .replace(/\s+/g, "-")
+      .trim() + nanoid();
+  console.log("Blog ID", blog_id);
+
+  // Storing data inside the mongoDB
+  const blog = new Blog({
+    title,
+    des,
+    banner,
+    content,
+    tags,
+    author: authorId,
+    blog_id,
+    draft: Boolean(draft),
+  });
+
+  blog
+    .save()
+    .then((blog) => {
+      const incrementVal = draft ? 0 : 1;
+
+      User.findOneAndUpdate(
+        { _id: authorId },
+        {
+          $inc: { "account_info.total_posts": incrementVal },
+          $push: { blogs: blog._id },
+        }
+      )
+        .then((user) => {
+          return res.status(200).json({ id: blog.blog_id });
+        })
+        .catch((err) => {
+          return res
+            .status(500)
+            .json({ error: "Failed to update total posts number." });
+        });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
 });
 
 // Listening to Port
