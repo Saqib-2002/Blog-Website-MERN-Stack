@@ -34,7 +34,7 @@ const UserAuthForm = ({ type }) => {
         console.log("Server response:", data);
         storeInSession("user", JSON.stringify(data));
 
-        toast.success("Authentication successful!");
+        // toast.success("Authentication successful!");
         setUserAuth(data);
         // Handle successful signup/signin here
       })
@@ -83,8 +83,10 @@ const UserAuthForm = ({ type }) => {
         "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters"
       );
     }
-
-    userAuthThroughServer(serverRoute, formData);
+    toast.success("Signed In Successfully");
+    setTimeout(() => {
+      userAuthThroughServer(serverRoute, formData);
+    }, 500);
   };
 
   // Google Auth
