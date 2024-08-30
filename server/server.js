@@ -356,7 +356,7 @@ server.post("/google-auth", async (req, res) => {
           return res.status(500).json({ error: err.message });
         });
     }
-
+  
     res.status(200).json(formatDatatoSend(user));
   } catch (err) {
     console.error("Google auth error:", err);

@@ -121,6 +121,7 @@ const UserAuthForm = ({ type }) => {
             id_token: user.id_token,
           };
           console.log("FormData ID Token :- ", formData.id_token);
+          toast.success("Authentication Successfull");
           userAuthThroughServer(serverRoute, formData);
         } else {
           console.error("No access token received from Google Auth");
