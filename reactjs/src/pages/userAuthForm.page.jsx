@@ -34,9 +34,9 @@ const UserAuthForm = ({ type }) => {
         console.log("Server response:", data);
         storeInSession("user", JSON.stringify(data));
 
+        toast.success("Authentication successful!");
         setUserAuth(data);
         // Handle successful signup/signin here
-        toast.success("Authentication successful!");
       })
       .catch(({ response }) => {
         console.error("Server error response:", response.data);
@@ -121,8 +121,12 @@ const UserAuthForm = ({ type }) => {
             id_token: user.id_token,
           };
           console.log("FormData ID Token :- ", formData.id_token);
+
+          console.log("Authentication success");
           toast.success("Authentication Successfull");
-          userAuthThroughServer(serverRoute, formData);
+          setTimeout(() => {
+            userAuthThroughServer(serverRoute, formData);
+          }, 500);
         } else {
           console.error("No access token received from Google Auth");
           toast.error("Failed to authenticate with Google. Please try again.");
