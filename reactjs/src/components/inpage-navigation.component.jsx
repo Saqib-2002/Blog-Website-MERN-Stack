@@ -8,8 +8,8 @@ const InPageNavigation = ({
 }) => {
   const [inPageNavIndex, setInPageNavIndex] = useState(defaultActiveIndex);
   const activeTabLineRef = useRef();
-    const activeTabRef = useRef();
-    // console.log(defaultHidden)
+  const activeTabRef = useRef();
+  // console.log(defaultHidden)
 
   const changePageState = (btn, i) => {
     // console.log(btn, i);.

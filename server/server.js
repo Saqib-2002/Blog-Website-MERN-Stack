@@ -15,6 +15,10 @@ import { fileURLToPath } from "url";
 import multer from "multer";
 dotenv.config();
 
+// For GDrive Upload
+import { GoogleAuth } from "google-auth-library";
+import { google } from "googleapis";
+
 // Schema import
 import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
@@ -315,9 +319,6 @@ server.post("/google-auth", async (req, res) => {
     });
   }
 });
-
-
-// Drive and Multer Configuration - Incompleted
 
 // getting the directory path
 const uploadsDir = "./uploads/images";
