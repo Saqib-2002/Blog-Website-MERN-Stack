@@ -1,3 +1,4 @@
+// Importing necessary libraries
 import express from "express";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt"; // library for hashing and comparing passwords in a secure manner
@@ -18,6 +19,7 @@ dotenv.config();
 import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
 
+// Initializing server
 const server = express(); // initializing a new Express application instance
 let PORT = 3000; // specifying the port on which the server will listen for incoming connections.
 
@@ -25,19 +27,6 @@ let PORT = 3000; // specifying the port on which the server will listen for inco
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // console.log("DIR name = ", __dirname);
-
-// const { google } = require("googleapis");
-import { google } from "googleapis";
-import { apikeys } from "googleapis/build/src/apis/apikeys/index.js";
-import { rejects } from "assert";
-// console.log("google - ", google);
-
-const apiDrivePath = path.join(__dirname, "cred.json");
-// console.log("API DRIVE Path= ", apiDrivePath);
-
-const apiDrive = JSON.parse(fs.readFileSync(apiDrivePath, "utf8"));
-
-// console.log("Api Drive - ", apiDrive);
 
 // Complete Path of firebase admin file
 const serviceAccountKeyPath = path.join(
@@ -52,6 +41,7 @@ const serviceAccountKey = JSON.parse(
 );
 // console.log("Service Account Key", serviceAccountKey);
 
+// initialization of Firebase Admin SDK in a Node.js environment.
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey),
 });
@@ -61,11 +51,13 @@ let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
+// implementation of middleware in an Express.js server application.
 server.use((req, res, next) => {
   console.log(`Received ${req.method} request to ${req.url}`);
   next();
 });
 
+// it allows your server to automatically parse JSON data sent in the request body.
 server.use(express.json());
 
 // CORS - Cross-Origin Resource Sharing
@@ -85,11 +77,12 @@ mongoose
     process.exit(1); // Exit the process if unable to connect to the database
   });
 
+// Verifying JWT Token
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  console.log(authHeader);
+  // console.log(authHeader);
   const token = authHeader && authHeader.split(" ")[1];
-  console.log(token);
+  // console.log(token);
 
   if (token == null) {
     return res.status(401).json({ error: "No access token" });
@@ -244,66 +237,6 @@ server.use((err, req, res, next) => {
     .json({ error: "Internal server error", details: err.message });
 });
 
-/*
-// google auth.
-server.post("/google-auth", async (req, res) => {
-  const { access_token } = req.body;
-
-  getAuth()
-    .verifyIdToken(access_token)
-    .then(async (decodedUser) => {
-      const { email, name, picture } = decodedUser;
-
-      picture = picture.replace("s96-c", "s384-c");
-      let user = await User.findOne({ "personal_info.email": email })
-        .select(
-          "personal_info.fullname personal_info.username personal_info.profile_img personal_info.google_auth"
-        )
-        .then((u) => {
-          return u || null;
-        })
-        .catch((err) => {
-          console.error("Error saving new Google user:", err);
-          return res.status(500).json({ error: err.message });
-        });
-
-      if (user) {
-        //login
-        if (!user.google_auth) {
-          return res.status(403).json({
-            error:
-              "This email was signed up without Google. Please log in with password.",
-          });
-        }
-      } else {
-        // signup
-        let username = await generateUsername(email);
-        user = new User({
-          personal_info: {
-            fullname: name,
-            email,
-            profile_img: picture,
-            username,
-          },
-          google_auth: true,
-        });
-
-        await user
-          .save((u) => {
-            user = u;
-          })
-          .catch((err) => {
-            console.error("Error saving new Google user:", err);
-            return res.status(500).json({ error: err.message });
-          });
-      }
-    })
-    .catch((err) => {
-      return res.status(500).json({ error: "Failed to authenticate you with google. Try some other google account." });
-    });
-});
-*/
-
 // Google Authentication
 server.post("/google-auth", async (req, res) => {
   try {
@@ -383,8 +316,14 @@ server.post("/google-auth", async (req, res) => {
   }
 });
 
-// Ensure uploads directory exists
+
+// Drive and Multer Configuration - Incompleted
+
+// getting the directory path
 const uploadsDir = "./uploads/images";
+// console.log(uploadsDir);
+
+// Ensure uploads directory exists
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -398,7 +337,9 @@ const storage = multer.diskStorage({
     cb(null, `banner_${Date.now()}${path.extname(file.originalname)}`);
   },
 });
+// console.log("Multer Storage - ", storage);
 
+// Uploading in the file
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
@@ -526,13 +467,6 @@ server.post("/create-blog", verifyJWT, (req, res) => {
       return res.status(500).json({ error: err.message });
     });
 });
-
-
-
-
-
-
-
 
 // Listening to Port
 server.listen(PORT, () => {
