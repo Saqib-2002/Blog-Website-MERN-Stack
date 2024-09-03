@@ -9,7 +9,7 @@ import admin from "firebase-admin";
 // import serviceAccountKey from "./blog-website-mern-stack-firebase-adminsdk-sb874-bbd8664920.json" assert { type: "json" };
 import { getAuth } from "firebase-admin/auth";
 import fs from "fs";
-import path from "path";
+import path, { resolve } from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 dotenv.config();
@@ -24,6 +24,20 @@ let PORT = 3000; // specifying the port on which the server will listen for inco
 // Getting the path of the server.js file directory.
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// console.log("DIR name = ", __dirname);
+
+// const { google } = require("googleapis");
+import { google } from "googleapis";
+import { apikeys } from "googleapis/build/src/apis/apikeys/index.js";
+import { rejects } from "assert";
+// console.log("google - ", google);
+
+const apiDrivePath = path.join(__dirname, "cred.json");
+// console.log("API DRIVE Path= ", apiDrivePath);
+
+const apiDrive = JSON.parse(fs.readFileSync(apiDrivePath, "utf8"));
+
+// console.log("Api Drive - ", apiDrive);
 
 // Complete Path of firebase admin file
 const serviceAccountKeyPath = path.join(
@@ -45,6 +59,7 @@ admin.initializeApp({
 // Validating email addresses and passwords
 let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
+const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
 server.use((req, res, next) => {
   console.log(`Received ${req.method} request to ${req.url}`);
@@ -356,7 +371,7 @@ server.post("/google-auth", async (req, res) => {
           return res.status(500).json({ error: err.message });
         });
     }
-  
+
     res.status(200).json(formatDatatoSend(user));
   } catch (err) {
     console.error("Google auth error:", err);
@@ -511,6 +526,13 @@ server.post("/create-blog", verifyJWT, (req, res) => {
       return res.status(500).json({ error: err.message });
     });
 });
+
+
+
+
+
+
+
 
 // Listening to Port
 server.listen(PORT, () => {
