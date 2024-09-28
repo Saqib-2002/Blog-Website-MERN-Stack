@@ -9,16 +9,19 @@
 #     "password": "Saqib12345"
 # }
 
-POST http://localhost:3000/create-blog
+# POST http://localhost:3000/signin
+# Content-Type: application/json
+
+# {
+#     "email": "saqqu@gmail.com",
+#     "password": "Saqqu123"
+# }
+
+POST http://localhost:3000/change-password
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDAwMTgzMmI3Y2U5MjBlMGE2OGRlZSIsImlhdCI6MTcyNDkwNzkwN30.EbbIy_WXbttz4BUYl12XJZaBKRDOv6Wtuc5WYuT_664
 
 {
-    "title": "test title",
-    "banner": "https://example.com/image-url",
-    "des": "this is a short description",
-    "content": {
-        "block": [1, 2]
-    },
-    "tags": ["tag 1", "tag 2"]
+    "currentPassword": "Saqqu123",
+    "newPassword": "Saifi1234"
 }

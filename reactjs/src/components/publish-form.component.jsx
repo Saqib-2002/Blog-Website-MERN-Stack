@@ -4,12 +4,15 @@ import { useContext } from "react";
 import { EditorContext } from "../pages/editor.pages";
 import Tags from "./tags.component";
 import { UserContext } from "../App";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 const PublishForm = () => {
   const characterLimit = 200;
   const tagLimit = 10;
+
+  const { blog_id } = useParams();
+
   const {
     blog,
     blog: { banner, title, tags, des, content, draft },
@@ -90,11 +93,15 @@ const PublishForm = () => {
 
     console.log(blogObj);
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", blogObj, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      })
+      .post(
+        import.meta.env.VITE_SERVER_DOMAIN + "/create-blog",
+        { ...blogObj, id: blog_id },
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      )
       .then(() => {
         e.target.classList.add("disable");
         toast.dismiss(loadingToast);
@@ -104,7 +111,7 @@ const PublishForm = () => {
           navigate("/");
         }, 500);
       })
-      .catch(({response}) => {
+      .catch(({ response }) => {
         e.target.classList.add("disable");
         toast.dismiss(loadingToast);
 
