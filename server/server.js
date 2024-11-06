@@ -607,6 +607,64 @@ server.post("/get-profile", (req, res) => {
     });
 });
 
+// update profile
+server.post("/update-profile", verifyJWT, (req, res) => {
+  const { username, social_links, bio } = req.body;
+  const bioLimit = 150;
+  if (username.length < 3) {
+    return res
+      .status(403)
+      .json({ error: "Username should be atleast 3 letters long" });
+  }
+  if (bio.length > bioLimit) {
+    return res
+      .status(403)
+      .json({ error: `Bio should not be more than ${bioLimit} characters.` });
+  }
+
+  const socialLinksArr = Object.keys(social_links);
+  try {
+    for (const i = 0; i < socialLinksArr.length; i++) {
+      if (social_links[socialLinksArr[i]].length) {
+        const hostName = new URL(social_links[socialLinksArr[i]]).hostname;
+
+        if (
+          !hostName.includes(`${socialLinksArr[i]}.com`) &&
+          socialLinksArr[i] != "website"
+        ) {
+          return res.status(403).json({
+            error: `${socialLinksArr[i]} link is invalid. You must enter a full link`,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    return res.status(500).json({
+      error: "You must provide full social links with http(s) included",
+    });
+  }
+
+  const updateObj = {
+    "personal_info.username": username,
+    "personal_info.bio": bio,
+    social_links,
+  };
+
+  User.findOneAndUpdate({ _id: req.user }, updateObj, {
+    runValidators: true,
+  })
+    .then(() => {
+      return res.status(200).json({ username });
+    })
+    .catch((err) => {
+      if (err.code == 11000) {
+        return res.status(409).json({ error: "Username is already taken" });
+      }
+
+      return res.status(500).json({ error: err.message });
+    });
+});
+
 // Create Blog Route
 server.post("/create-blog", verifyJWT, (req, res) => {
   // console.log("Request body:", req.body);

@@ -2,3 +2,8 @@ node_modules
 node_modules
 node_modules
 node_modules
+
+cred.json
+.env
+blog-website-mern-stack-firebase-adminsdk-sb874-bbd8664920.json
+firebase.js
