@@ -22,6 +22,7 @@ import { google } from "googleapis";
 // Schema import
 import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
+import { type } from "os";
 
 // Initializing server
 const server = express(); // initializing a new Express application instance
@@ -376,6 +377,83 @@ server.post("/upload", upload.single("banner"), (req, res) => {
     success: true,
     image_url: `http://localhost:${PORT}/images/${req.file.filename}`,
   });
+});
+
+// Latest Blogs
+server.post("/latest-blogs", (req, res) => {
+  let { page } = req.body;
+  console.log("Page - ", page);
+  const maxLimit = 5;
+
+  Blog.find({ draft: false })
+    .populate(
+      "author",
+      "personal_info.profile_img personal_info.username personal_info.fullname -_id"
+    )
+    .sort({ publishedAt: -1 })
+    .select("blog_id title des banner activity tags publishedAt -_id")
+    .limit(maxLimit)
+    .skip((page - 1) * maxLimit)
+    .then((blogs) => {
+      return res.status(200).json({ blogs });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+// Trending Blogs
+server.get("/trending-blogs", (req, res) => {
+  Blog.find({ draft: false })
+    .populate(
+      "author",
+      "personal_info.profile_img personal_info.username personal_info.fullname -_id"
+    )
+    .sort({
+      "activity.total_read": -1,
+      "activity.total_likes": -1,
+      publishedAt: -1,
+    })
+    .select("blog_id title publishedAt -_id")
+    .limit(5)
+    .then((blogs) => {
+      return res.status(200).json({ blogs });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+// Filtering Blog Data
+server.post("/search-blogs", (req, res) => {
+  // console.log("Request body - ", req.body);
+
+  const { tag } = req.body;
+
+  // console.log(typeof tag);
+  // console.log("Search body - ", String(tag));
+
+  const findQuery = {
+    tags: tag,
+    draft: false,
+  };
+
+  const maxLimit = 5;
+
+  Blog.find(findQuery)
+    .populate(
+      "author",
+      "personal_info.profile_img personal_info.username personal_info.fullname -_id"
+    )
+    .sort({ publishedAt: -1 })
+    .select("blog_id title des banner activity tags publishedAt -_id")
+    .limit(maxLimit)
+    .then((blogs) => {
+      return res.status(200).json({ blogs });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
 });
 
 // Create Blog Route

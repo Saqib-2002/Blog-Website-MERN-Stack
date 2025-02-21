@@ -9,16 +9,4 @@
 #     "password": "Saqib12345"
 # }
 
-POST http://localhost:3000/create-blog
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDAwMTgzMmI3Y2U5MjBlMGE2OGRlZSIsImlhdCI6MTcyNDkwNzkwN30.EbbIy_WXbttz4BUYl12XJZaBKRDOv6Wtuc5WYuT_664
-
-{
-    "title": "test title",
-    "banner": "https://example.com/image-url",
-    "des": "this is a short description",
-    "content": {
-        "block": [1, 2]
-    },
-    "tags": ["tag 1", "tag 2"]
-}
+POST http://localhost:3000/latest-blogs
