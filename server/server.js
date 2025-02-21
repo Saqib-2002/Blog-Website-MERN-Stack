@@ -22,7 +22,15 @@ import { google } from "googleapis";
 // Schema import
 import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
+<<<<<<< HEAD
 import { type } from "os";
+=======
+import Notification from "./Schema/Notification.js";
+import Comment from "./Schema/Comment.js";
+
+import { type } from "os";
+import e from "express";
+>>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 
 // Initializing server
 const server = express(); // initializing a new Express application instance
@@ -321,6 +329,75 @@ server.post("/google-auth", async (req, res) => {
   }
 });
 
+// Change Password
+server.post("/change-password", verifyJWT, (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  console.log(currentPassword);
+
+  if (
+    !passwordRegex.test(currentPassword) ||
+    !passwordRegex.test(newPassword)
+  ) {
+    //   console.log("error");
+    return res.status(403).json({
+      error:
+        "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters",
+    });
+  }
+
+  User.findOne({ _id: req.user })
+    .then((user) => {
+      if (user.google_auth) {
+        return res.status(403).json({
+          errror:
+            "You can't change account password because you logged in through google",
+        });
+      }
+
+      bcrypt.compare(
+        currentPassword,
+        user.personal_info.password,
+        (err, result) => {
+          console.log(result);
+          if (err) {
+            return res.status(500).json({
+              error:
+                "Some error occured while changing the password. Please try again later",
+            });
+          }
+          // console.log(result);
+          // console.log(user.personal_info.password);
+
+          if (!result) {
+            // console.log(result);
+            return res
+              .status(403)
+              .json({ error: "Incorrect Current Password" });
+          }
+
+          bcrypt.hash(newPassword, 10, (err, hashed_password) => {
+            User.findOneAndUpdate(
+              { _id: req.user },
+              { "personal_info.password": hashed_password }
+            )
+              .then((u) => {
+                return res.status(200).json({ status: "Password Changed" });
+              })
+              .catch((err) => {
+                return res.status(500).json({
+                  error: "Some error occured while saving new password",
+                });
+              });
+          });
+        }
+      );
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json({ error: "User not found" });
+    });
+});
+
 // getting the directory path
 const uploadsDir = "./uploads/images";
 // console.log(uploadsDir);
@@ -402,6 +479,21 @@ server.post("/latest-blogs", (req, res) => {
     });
 });
 
+<<<<<<< HEAD
+=======
+// filter Pagination data
+server.post("/all-latest-blogs-count", (req, res) => {
+  Blog.countDocuments({ draft: false })
+    .then((count) => {
+      return res.status(200).json({ totalDocs: count });
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+>>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 // Trending Blogs
 server.get("/trending-blogs", (req, res) => {
   Blog.find({ draft: false })
@@ -428,17 +520,38 @@ server.get("/trending-blogs", (req, res) => {
 server.post("/search-blogs", (req, res) => {
   // console.log("Request body - ", req.body);
 
+<<<<<<< HEAD
   const { tag } = req.body;
+=======
+  const { tag, page, query, author, limit, eliminate_blog } = req.body;
+>>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 
   // console.log(typeof tag);
   // console.log("Search body - ", String(tag));
 
+<<<<<<< HEAD
   const findQuery = {
     tags: tag,
     draft: false,
   };
 
   const maxLimit = 5;
+=======
+  let findQuery;
+
+  if (tag) {
+    findQuery = {
+      tags: tag,
+      draft: false,
+      blog_id: { $ne: eliminate_blog },
+    };
+  } else if (query) {
+    findQuery = { draft: false, title: new RegExp(query, "i") };
+  } else if (author) {
+    findQuery = { author, draft: false };
+  }
+  const maxLimit = limit ? limit : 2;
+>>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 
   Blog.find(findQuery)
     .populate(
@@ -447,6 +560,10 @@ server.post("/search-blogs", (req, res) => {
     )
     .sort({ publishedAt: -1 })
     .select("blog_id title des banner activity tags publishedAt -_id")
+<<<<<<< HEAD
+=======
+    .skip((page - 1) * maxLimit)
+>>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
     .limit(maxLimit)
     .then((blogs) => {
       return res.status(200).json({ blogs });
@@ -456,6 +573,124 @@ server.post("/search-blogs", (req, res) => {
     });
 });
 
+<<<<<<< HEAD
+=======
+server.post("/search-blogs-count", (req, res) => {
+  let { tag, query, author } = req.body;
+  let findQuery;
+  if (tag) {
+    findQuery = {
+      tags: tag,
+      draft: false,
+    };
+  } else if (query) {
+    findQuery = { draft: false, title: new RegExp(query, "i") };
+  } else if (author) {
+    findQuery = { author, draft: false };
+  }
+
+  Blog.countDocuments(findQuery)
+    .then((count) => {
+      return res.status(200).json({ totalDocs: count });
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+// Searching Users
+server.post("/search-users", (req, res) => {
+  let { query } = req.body;
+  console.log(query);
+  User.find({
+    "personal_info.username": new RegExp(query, "i"),
+  })
+    .limit(50)
+    .select(
+      "personal_info.fullname personal_info.username personal_info.profile_img -_id"
+    )
+    .then((users) => {
+      return res.status(200).json({ users });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+// profile page
+server.post("/get-profile", (req, res) => {
+  let { username } = req.body;
+  User.findOne({ "personal_info.username": username })
+    .select("-personal_info.password -google_auth -updatedAt -blogs")
+    .then((user) => {
+      return res.status(200).json(user);
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+// update profile
+server.post("/update-profile", verifyJWT, (req, res) => {
+  const { username, social_links, bio } = req.body;
+  const bioLimit = 150;
+  if (username.length < 3) {
+    return res
+      .status(403)
+      .json({ error: "Username should be atleast 3 letters long" });
+  }
+  if (bio.length > bioLimit) {
+    return res
+      .status(403)
+      .json({ error: `Bio should not be more than ${bioLimit} characters.` });
+  }
+
+  const socialLinksArr = Object.keys(social_links);
+  try {
+    for (const i = 0; i < socialLinksArr.length; i++) {
+      if (social_links[socialLinksArr[i]].length) {
+        const hostName = new URL(social_links[socialLinksArr[i]]).hostname;
+
+        if (
+          !hostName.includes(`${socialLinksArr[i]}.com`) &&
+          socialLinksArr[i] != "website"
+        ) {
+          return res.status(403).json({
+            error: `${socialLinksArr[i]} link is invalid. You must enter a full link`,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    return res.status(500).json({
+      error: "You must provide full social links with http(s) included",
+    });
+  }
+
+  const updateObj = {
+    "personal_info.username": username,
+    "personal_info.bio": bio,
+    social_links,
+  };
+
+  User.findOneAndUpdate({ _id: req.user }, updateObj, {
+    runValidators: true,
+  })
+    .then(() => {
+      return res.status(200).json({ username });
+    })
+    .catch((err) => {
+      if (err.code == 11000) {
+        return res.status(409).json({ error: "Username is already taken" });
+      }
+
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+>>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 // Create Blog Route
 server.post("/create-blog", verifyJWT, (req, res) => {
   // console.log("Request body:", req.body);
@@ -463,7 +698,7 @@ server.post("/create-blog", verifyJWT, (req, res) => {
   const authorId = req.user;
   console.log("Author ID = ", authorId);
 
-  let { title, des, banner, tags, content, draft } = req.body;
+  let { title, des, banner, tags, content, draft, id } = req.body;
   console.log(tags);
 
   if (!title.length) {
@@ -503,47 +738,211 @@ server.post("/create-blog", verifyJWT, (req, res) => {
   // Storing data in database
   tags = tags.map((tag) => tag.toLowerCase());
   const blog_id =
+    id ||
     title
       .replace(/[^a-zA-Z0-9]/g, " ")
       .replace(/\s+/g, "-")
       .trim() + nanoid();
   console.log("Blog ID", blog_id);
 
-  // Storing data inside the mongoDB
-  const blog = new Blog({
-    title,
-    des,
-    banner,
-    content,
-    tags,
-    author: authorId,
-    blog_id,
-    draft: Boolean(draft),
-  });
+  if (id) {
+    Blog.findOneAndUpdate(
+      { blog_id },
+      { title, des, banner, content, tags, draft: draft ? draft : false }
+    )
+      .then(() => {
+        return res.status(200).json({ id: blog_id });
+      })
+      .catch((err) => {
+        return res.status(500).json({ error: err.message });
+      });
+  } else {
+    // Storing data inside the mongoDB
+    const blog = new Blog({
+      title,
+      des,
+      banner,
+      content,
+      tags,
+      author: authorId,
+      blog_id,
+      draft: Boolean(draft),
+    });
 
-  blog
-    .save()
+    blog
+      .save()
+      .then((blog) => {
+        const incrementVal = draft ? 0 : 1;
+
+        User.findOneAndUpdate(
+          { _id: authorId },
+          {
+            $inc: { "account_info.total_posts": incrementVal },
+            $push: { blogs: blog._id },
+          }
+        )
+          .then((user) => {
+            return res.status(200).json({ id: blog.blog_id });
+          })
+          .catch((err) => {
+            return res
+              .status(500)
+              .json({ error: "Failed to update total posts number." });
+          });
+      })
+      .catch((err) => {
+        return res.status(500).json({ error: err.message });
+      });
+  }
+});
+
+server.post("/get-blog", (req, res) => {
+  const { blog_id, draft, mode } = req.body;
+  let incrementVal = mode != "edit" ? 1 : 0;
+
+  Blog.findOneAndUpdate(
+    { blog_id },
+    { $inc: { "activity.total_reads": incrementVal } }
+  )
+    .populate(
+      "author",
+      "personal_info.fullname personal_info.username personal_info.profile_img"
+    )
+    .select("title des content banner activity publishedAt blog_id tags")
     .then((blog) => {
-      const incrementVal = draft ? 0 : 1;
-
       User.findOneAndUpdate(
-        { _id: authorId },
-        {
-          $inc: { "account_info.total_posts": incrementVal },
-          $push: { blogs: blog._id },
-        }
-      )
-        .then((user) => {
-          return res.status(200).json({ id: blog.blog_id });
-        })
-        .catch((err) => {
-          return res
-            .status(500)
-            .json({ error: "Failed to update total posts number." });
-        });
+        { "personal_info.username": blog.author.personal_info.username },
+        { $inc: { "account_info.total_reads": incrementVal } }
+      ).catch((err) => {
+        return res.status(500).json({ error: err.message });
+      });
+
+      if (blog.draft && !draft) {
+        return res.status(500).json({ error: "You cannot access draft blog." });
+      }
+      return res.status(200).json({ blog });
     })
     .catch((err) => {
       return res.status(500).json({ error: err.message });
+    });
+});
+
+server.post("/like-blog", verifyJWT, (req, res) => {
+  const user_id = req.user;
+  const { _id, isLikedByUser } = req.body;
+
+  const incrementVal = !isLikedByUser ? 1 : -1;
+
+  Blog.findOneAndUpdate(
+    { _id },
+    { $inc: { "activity.total_likes": incrementVal } }
+  ).then((blog) => {
+    if (!isLikedByUser) {
+      const like = new Notification({
+        type: "like",
+        blog: _id,
+        notification_for: blog.author,
+        user: user_id,
+      });
+      like.save().then((notification) => {
+        return res.status(200).json({ liked_by_user: true });
+      });
+    } else {
+      Notification.findOneAndDelete({ user: user_id, blog: _id, type: "like" })
+        .then((data) => {
+          return res.status(200).json({ liked_by_user: false });
+        })
+        .catch((err) => {
+          return res.status(500).json({ error: err.message });
+        });
+    }
+  });
+});
+
+server.post("/isliked-by-user", verifyJWT, (req, res) => {
+  const user_id = req.user;
+  const { _id } = req.body;
+
+  Notification.exists({ user: user_id, type: "like", blog: _id })
+    .then((result) => {
+      console.log(result);
+      return res.status(200).json({ result });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+server.post("/add-comment", verifyJWT, (req, res) => {
+  const user_id = req.user;
+  const { _id, comment, blog_author } = req.body;
+
+  if (!comment.length) {
+    return res
+      .status(403)
+      .json({ error: "Write something to leave a comment" });
+  }
+  // creating a comment doc.
+  let commentObj = new Comment({
+    blog_id: _id,
+    blog_author,
+    comment,
+    commented_by: user_id,
+  });
+  commentObj.save().then((commentFile) => {
+    const { comment, commentedAt, children, commented_by } = commentFile;
+    Blog.findOneAndUpdate(
+      { _id },
+      {
+        $push: { comments: commentFile._id },
+        $inc: { "activity.total_comments": 1 },
+        "activity.total_parent_comments": 1,
+      }
+    ).then((blog) => {
+      console.log("New comment created");
+    });
+
+    const notificationObj = {
+      type: "comment",
+      blog: _id,
+      notification_for: blog_author,
+      user: user_id,
+      comment: commentFile._id,
+    };
+
+    new Notification(notificationObj)
+      .save()
+      .then((notification) => console.log("New notification added"));
+
+    return res.status(200).json({
+      comment,
+      commentedAt,
+      _id: commentFile._id,
+      user_id,
+      children,
+      commented_by,
+    });
+  });
+});
+
+server.post("/get-blog-comments", (req, res) => {
+  const { blog_id, skip } = req.body;
+  const maxLimit = 5;
+
+  Comment.find({ blog_id, isReply: false })
+    .populate(
+      "commented_by",
+      "personal_info.username personal_info.fullname personal_info.profile_img"
+    )
+    .skip(skip)
+    .limit(maxLimit)
+    .sort({ commentedAt: -1 })
+    .then((comment) => {
+      return res.status(200).json(comment);
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json({ errror: err.message });
     });
 });
 
