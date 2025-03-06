@@ -19,7 +19,13 @@
     "firebase-admin": "^11.10.1",
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.3.2",
-    "nanoid": "^4.0.2"
+    "nanoid": "^4.0.2",
+    "google-auth-library": "^9.14.0",
+    "googleapis": "^143.0.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.14",
+    "nodemon": "^3.1.4",
+    "firebase": "^10.12.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
