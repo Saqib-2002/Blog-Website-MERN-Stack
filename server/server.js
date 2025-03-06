@@ -22,15 +22,11 @@ import { google } from "googleapis";
 // Schema import
 import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
-<<<<<<< HEAD
-import { type } from "os";
-=======
 import Notification from "./Schema/Notification.js";
 import Comment from "./Schema/Comment.js";
 
 import { type } from "os";
 import e from "express";
->>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 
 // Initializing server
 const server = express(); // initializing a new Express application instance
@@ -479,8 +475,6 @@ server.post("/latest-blogs", (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-=======
 // filter Pagination data
 server.post("/all-latest-blogs-count", (req, res) => {
   Blog.countDocuments({ draft: false })
@@ -493,7 +487,6 @@ server.post("/all-latest-blogs-count", (req, res) => {
     });
 });
 
->>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 // Trending Blogs
 server.get("/trending-blogs", (req, res) => {
   Blog.find({ draft: false })
@@ -520,23 +513,11 @@ server.get("/trending-blogs", (req, res) => {
 server.post("/search-blogs", (req, res) => {
   // console.log("Request body - ", req.body);
 
-<<<<<<< HEAD
-  const { tag } = req.body;
-=======
   const { tag, page, query, author, limit, eliminate_blog } = req.body;
->>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 
   // console.log(typeof tag);
   // console.log("Search body - ", String(tag));
 
-<<<<<<< HEAD
-  const findQuery = {
-    tags: tag,
-    draft: false,
-  };
-
-  const maxLimit = 5;
-=======
   let findQuery;
 
   if (tag) {
@@ -551,7 +532,6 @@ server.post("/search-blogs", (req, res) => {
     findQuery = { author, draft: false };
   }
   const maxLimit = limit ? limit : 2;
->>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 
   Blog.find(findQuery)
     .populate(
@@ -560,10 +540,7 @@ server.post("/search-blogs", (req, res) => {
     )
     .sort({ publishedAt: -1 })
     .select("blog_id title des banner activity tags publishedAt -_id")
-<<<<<<< HEAD
-=======
     .skip((page - 1) * maxLimit)
->>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
     .limit(maxLimit)
     .then((blogs) => {
       return res.status(200).json({ blogs });
@@ -573,8 +550,6 @@ server.post("/search-blogs", (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-=======
 server.post("/search-blogs-count", (req, res) => {
   let { tag, query, author } = req.body;
   let findQuery;
@@ -690,7 +665,6 @@ server.post("/update-profile", verifyJWT, (req, res) => {
     });
 });
 
->>>>>>> 1a95937f8550051d24fcc941a6513d887a7943bc
 // Create Blog Route
 server.post("/create-blog", verifyJWT, (req, res) => {
   // console.log("Request body:", req.body);
