@@ -72,7 +72,7 @@ server.use(express.json());
 // CORS - Cross-Origin Resource Sharing
 server.use(
   cors({
-    origin: "http://localhost:5173", // replace with your frontend URL
+    origin: import.meta.VITE_SERVER_DOMAIN, // replace with your frontend URL
     credentials: true,
   })
 );
