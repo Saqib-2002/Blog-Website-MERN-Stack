@@ -72,7 +72,7 @@ server.use(express.json());
 // CORS - Cross-Origin Resource Sharing
 server.use(
   cors({
-    origin: import.meta.VITE_SERVER_DOMAIN, // replace with your frontend URL
+    origin: import.meta.FRONT_END_URL, // replace with your frontend URL
     credentials: true,
   })
 );
