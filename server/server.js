@@ -72,7 +72,8 @@ server.use(express.json());
 // CORS - Cross-Origin Resource Sharing
 server.use(
   cors({
-    origin: import.meta.FRONT_END_URL, // replace with your frontend URL
+    origin: process.env.FRONT_END_URL, // Your frontend URL
+    methods: "GET, POST, PUT, DELETE",
     credentials: true,
   })
 );
