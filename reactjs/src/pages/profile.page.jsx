@@ -49,7 +49,7 @@ const ProfilePage = () => {
 
   const fetchUserProfile = () => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-profile", {
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/api/user/get-profile", {
         username: profileId,
       })
       .then(({ data: user }) => {

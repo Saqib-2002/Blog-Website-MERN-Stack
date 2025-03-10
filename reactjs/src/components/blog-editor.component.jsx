@@ -46,14 +46,17 @@ const BlogEditor = () => {
 
   const handleBannerUpload = async (e) => {
     const file = e.target.files[0];
+    console.log(file);
     if (file) {
       const loadingToast = toast.loading("Uploading banner...");
       const formData = new FormData();
-      formData.append("banner", file);
+      formData.append("file", file);
+      const tempURL = URL.createObjectURL(file);
+      setBannerImage(tempURL);
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_SERVER_DOMAIN}/upload`,
+          `${import.meta.env.VITE_SERVER_DOMAIN}/uploads`,
           {
             method: "POST",
             body: formData,
@@ -141,7 +144,7 @@ const BlogEditor = () => {
 
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_DOMAIN}/create-blog`,
-        {...blogObj, id:blog_id},
+        { ...blogObj, id: blog_id },
         {
           headers: {
             Authorization: `Bearer ${access_token}`,

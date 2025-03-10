@@ -36,17 +36,20 @@ const EditProfile = () => {
   } = profile;
 
   useEffect(() => {
+    // console.log(import.meta.env.VITE_SERVER_DOMAIN);
     if (access_token) {
       axios
-        .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-profile", {
-          username: userAuth.username,
+        .post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/user/get-profile`, {
+          username: userAuth?.username,
         })
         .then(({ data }) => {
+          console.log("Profile Data:", data); // Debugging
+
           setProfile(data);
           setLoading(false);
         })
         .catch((err) => {
-          console.log(err);
+          console.log("edit-page-error: ", err);
         });
     }
   }, [access_token]);

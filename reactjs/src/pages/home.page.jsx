@@ -31,10 +31,11 @@ const HomePage = () => {
   const fetchLatestBlogs = (page = 1) => {
     // console.log(import.meta.env.VITE_SERVER_DOMAIN);
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs", { page })
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs", {
+        page,
+      })
       .then(({ data }) => {
         // let formatedData =
-        console.log(data);
 
         setBlogs(data.blogs);
       })

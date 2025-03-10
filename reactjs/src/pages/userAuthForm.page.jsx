@@ -8,7 +8,9 @@ import axios from "axios";
 import { storeInSession } from "../common/session";
 import { useContext } from "react";
 import { UserContext } from "../App";
-// import { authWithGoogle } from "../common/firebase";
+
+import { auth, provider } from "../firebase/firebase.js";
+import { signInWithPopup } from "firebase/auth";
 
 const UserAuthForm = ({ type }) => {
   const authForm = useRef();
@@ -22,21 +24,17 @@ const UserAuthForm = ({ type }) => {
   const serverUrl = import.meta.env.VITE_SERVER_DOMAIN;
 
   const userAuthThroughServer = (serverRoute, formData) => {
-    console.log("Sending data:", formData); // Log the data being sent
-    console.log("Full URL:", import.meta.env.VITE_SERVER_DOMAIN + serverRoute);
     axios
-      .post(`${serverUrl}${serverRoute}`, formData, {
+      .post(`${serverUrl}/api/auth${serverRoute}`, formData, {
         headers: {
           "Content-Type": "application/json",
         },
       })
       .then(({ data }) => {
-        console.log("Server response:", data);
         storeInSession("user", JSON.stringify(data));
-
-        // toast.success("Authentication successful!");
+        toast.success("Signed In Successfully");
+        console.log("data: ", data);
         setUserAuth(data);
-        // Handle successful signup/signin here
       })
       .catch(({ response }) => {
         console.error("Server error response:", response.data);
@@ -83,61 +81,37 @@ const UserAuthForm = ({ type }) => {
         "Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters"
       );
     }
-    toast.success("Signed In Successfully");
+
     setTimeout(() => {
       userAuthThroughServer(serverRoute, formData);
     }, 500);
   };
 
   // Google Auth
-  /*const handleGoogleAuth = (e) => {
+  const handleGoogleAuth = async (e) => {
     e.preventDefault();
-    authWithGoogle()
-      .then((user) => {
-        console.log(user);
-
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const id_token = await result.user.getIdToken();
+      if (result.user && id_token) {
         const serverRoute = "/google-auth";
         const formData = {
-          access_token: user.access_token,
+          id_token,
         };
-
-        userAuthThroughServer(serverRoute, formData)
-      })
-      .catch((err) => {
-        toast.error("Trouble login through Google");
-        return console.log(err);
-      });
-  };*/
-
-  const handleGoogleAuth = (e) => {
-    e.preventDefault();
-    authWithGoogle()
-      .then((user) => {
-        console.log("Google Auth User:", user);
-        console.log("user.id_token:- ", user.id_token);
-        // console.log("acces_token:- ", access_token.accessToken); // null
-
-        if (user && user.id_token) {
-          const serverRoute = "/google-auth";
-          const formData = {
-            id_token: user.id_token,
-          };
-          console.log("FormData ID Token :- ", formData.id_token);
-
-          console.log("Authentication success");
-          toast.success("Authentication Successfull");
-          setTimeout(() => {
-            userAuthThroughServer(serverRoute, formData);
-          }, 500);
-        } else {
-          console.error("No access token received from Google Auth");
-          toast.error("Failed to authenticate with Google. Please try again.");
-        }
-      })
-      .catch((err) => {
-        console.error("Google Auth Error:", err);
-        toast.error("Trouble logging in through Google");
-      });
+        // console.log("FormData ID Token :- ", formData.id_token);
+        // console.log("Authentication success");
+        toast.success("Authentication Successfull");
+        setTimeout(() => {
+          userAuthThroughServer(serverRoute, formData);
+        }, 500);
+      } else {
+        console.error("No access token received from Google Auth");
+        toast.error("Failed to authenticate with Google. Please try again.");
+      }
+    } catch (error) {
+      console.error("Google Auth Error:", error);
+      toast.error("Trouble logging in through Google");
+    }
   };
 
   return access_token ? (

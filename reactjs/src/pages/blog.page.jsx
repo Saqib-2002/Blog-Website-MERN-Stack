@@ -43,7 +43,9 @@ const BlogPage = () => {
 
   const fetchBlog = () => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-blog", { blog_id })
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-blog", {
+        blog_id,
+      })
       .then(async ({ data: { blog } }) => {
         // console.log("Before - ", blog);
         blog.comments = await fetchComments({
@@ -130,7 +132,7 @@ const BlogPage = () => {
 
             {/* Blog Content here */}
             <div className="my-12 font-gelasio blog-page-content">
-              {content[0].blocks.map((block, i) => {
+              {content[0]?.blocks?.map((block, i) => {
                 return (
                   <div key={i} className="my-4 md:my-8">
                     <BlogContent block={block} />
