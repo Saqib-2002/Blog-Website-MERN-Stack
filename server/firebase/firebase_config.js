@@ -8,7 +8,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Correct path
-const serviceAccountPath = path.join(__dirname, "serviceKey.json");
+const serviceAccountPath =
+  process.env.NODE_ENV === "production"
+    ? "/etc/secrets/serviceKey.json" // Render Secret File Path
+    : path.join(__dirname, "serviceKey.json"); // Localhost Path
 
 // Check if file exists
 if (!fs.existsSync(serviceAccountPath)) {
