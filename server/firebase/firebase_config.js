@@ -8,10 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Correct path
-const serviceAccountPath = path.join(
-  __dirname,
-  "blog-website-mern-stack-firebase-adminsdk-sb874-418719611c.json"
-);
+const serviceAccountPath = path.join(__dirname, "firebaseServiceKey.json");
 
 // Check if file exists
 if (!fs.existsSync(serviceAccountPath)) {
