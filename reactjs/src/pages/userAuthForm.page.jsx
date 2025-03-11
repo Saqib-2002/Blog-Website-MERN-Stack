@@ -33,7 +33,7 @@ const UserAuthForm = ({ type }) => {
       .then(({ data }) => {
         storeInSession("user", JSON.stringify(data));
         toast.success("Signed In Successfully");
-        console.log("data: ", data);
+        // console.log("data: ", data);
         setUserAuth(data);
       })
       .catch(({ response }) => {

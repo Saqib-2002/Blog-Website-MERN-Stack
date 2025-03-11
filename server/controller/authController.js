@@ -111,7 +111,7 @@ const googleAuth = async (req, res) => {
         .status(401)
         .json({ error: "Invalid token", details: verifyError.message });
     }
-
+    // console.log("Decoded User: ", decodedUser);
     const { email, name, picture } = decodedUser;
     let updatedPicture = picture.replace("s96-c", "s384-c");
 
