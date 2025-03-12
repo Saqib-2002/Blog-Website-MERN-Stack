@@ -92,17 +92,44 @@ const searchUser = async (req, res) => {
   }
 };
 
+// const getProfile = async (req, res) => {
+//   try {
+//     const { username } = req.params; // Use URL params instead of body
+
+//     if (!username) {
+//       return res.status(400).json({ error: "Username is required" });
+//     }
+
+//     const user = await User.findOne({
+//       "personal_info.username": username,
+//     }).select("-personal_info.password -google_auth -updatedAt -blogs");
+
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     return res.status(200).json(user);
+//   } catch (err) {
+//     console.error("Error fetching user profile:", err);
+//     return res
+//       .status(500)
+//       .json({ error: "Something went wrong. Please try again." });
+//   }
+//   // res.send("Hello");
+// };
+
 const getProfile = async (req, res) => {
   try {
-    const { username } = req.params; // Use URL params instead of body
+    const { username } = req.params; // Ensure route is set up correctly
 
     if (!username) {
       return res.status(400).json({ error: "Username is required" });
     }
 
-    const user = await User.findOne({
-      "personal_info.username": username,
-    }).select("-personal_info.password -google_auth -updatedAt -blogs");
+    const user = await User.findOne(
+      { "personal_info.username": username },
+      "-personal_info.password -google_auth -updatedAt -blogs"
+    ); // More optimized projection
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -111,11 +138,11 @@ const getProfile = async (req, res) => {
     return res.status(200).json(user);
   } catch (err) {
     console.error("Error fetching user profile:", err);
-    return res
-      .status(500)
-      .json({ error: "Something went wrong. Please try again." });
+    return res.status(500).json({ error: "Something went wrong. Please try again." });
   }
+  // res.send("hellp")
 };
+
 
 const updateProfile = async (req, res) => {
   try {
