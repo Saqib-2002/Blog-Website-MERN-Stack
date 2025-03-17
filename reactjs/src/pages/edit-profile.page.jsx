@@ -39,9 +39,14 @@ const EditProfile = () => {
     // console.log(import.meta.env.VITE_SERVER_DOMAIN);
     if (access_token) {
       axios
-        .post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/user/get-profile`, {
-          username: userAuth?.username,
-        })
+        .get(
+          `${import.meta.env.VITE_SERVER_DOMAIN}/api/user/get-profile/${
+            userAuth.username
+          }`,
+          {
+            username: userAuth?.username,
+          }
+        )
         .then(({ data }) => {
           console.log("Profile Data:", data); // Debugging
 
