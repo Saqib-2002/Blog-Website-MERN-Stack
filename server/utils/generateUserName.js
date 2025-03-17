@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-
+import User from "../Schema/User.js";
 // Generating random userName
 export const generateUsername = async (email) => {
   let username = email.split("@")[0];

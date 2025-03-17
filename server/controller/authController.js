@@ -1,4 +1,5 @@
 import User from "../Schema/User.js";
+
 import bcrypt from "bcrypt";
 import { generateUsername } from "../utils/generateUserName.js";
 import { formatDatatoSend } from "../utils/formatDatatoSend.js";
@@ -11,7 +12,7 @@ const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 const signup = async (req, res) => {
   try {
     const { fullname, email, password } = req.body;
-
+    // console.log(fullname, email, password);
     if (fullname.length < 3) {
       return res.status(400).json({
         error: "Fullname must be at least 3 letters long",
@@ -35,16 +36,20 @@ const signup = async (req, res) => {
         field: "password",
       });
     }
-
+    console.log("User Model:", User);
     const existingUser = await User.findOne({ "personal_info.email": email });
     if (existingUser) {
       return res
         .status(400)
         .json({ error: "Email already exists", field: "email" });
     }
+    // console.log(existingUser);
 
     const hashed_password = await bcrypt.hash(password, 10);
+    console.log(hashed_password);
     const username = await generateUsername(email);
+    console.log(username);
+    // console.log(username);
 
     const user = new User({
       personal_info: {
